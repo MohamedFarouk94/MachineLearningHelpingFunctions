@@ -7,11 +7,11 @@ from sklearn.model_selection import cross_val_predict
 
 
 # Quick tryouts for several models
-def try_models(models, X, y):
+def try_models(models, X, y, plotting=True):
     scores_df = []
     n_models = len(models)
     for i, model in enumerate(models):
-        print(f'({i + 1}/{n_models}) {model.__class__.__name__}')
+        print(f'({i+1}/{n_models}) {model.__class__.__name__}')
 
         before = time()
         try:
@@ -26,7 +26,14 @@ def try_models(models, X, y):
         scores_df.append([model.__class__.__name__, time_taken, score])
         print()
 
-    return pd.DataFrame(scores_df, columns=['Model', 'Time', 'Score'])
+    scores_df = pd.DataFrame(scores_df, columns=['Model', 'Time', 'Score']).set_index('Model')
+    scores_df = scores_df.sort_values(by='Score')
+
+    if plotting:
+        ax = scores_df.Score.plot(kind='barh')
+        for bar, score, time_taken in zip(ax.patches, scores_df.Score.to_list(), scores_df.Time.to_list()):
+            ax.text(0.25, bar.get_y() + bar.get_height() / 2 - 0.1, f'%{score * 100:.4f} (Time: {time_taken})',
+                    color='white', size=20)
 
 
 # Geting cross validation score and predictions
