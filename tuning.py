@@ -32,7 +32,10 @@ def search_model(model_to_call, all_pars, X, y, next_query=0.25,
     n_possiblities = len(all_possible_pars)
     next_query = next_query if next_query > 1 else int(n_possiblities * next_query)
     print(f'There are {n_possiblities} possibilities to check.')
-    print(f'You will be asked if you want to continue after {next_query} iterations.')
+    if next_query >= n_possiblities:
+        print('Procedure will be continuing till the end.')
+    else:
+        print(f'You will be asked if you want to continue after {next_query} iterations.')
 
     best_score = -10000
     best_pars = dict()

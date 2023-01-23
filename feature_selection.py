@@ -97,7 +97,10 @@ def grid_feature_selection(model_to_call, params, X, y, possible_bad_cols, scori
     iterations_since_last_high = 0
 
     print(f'There are {n_possibilities} possibilities to check.')
-    print(f'You will be asked if you want to continue after {next_query} iterations.')
+    if next_query >= n_possibilities:
+        print('Procedure will be continuing till the end.')
+    else:
+        print(f'You will be asked if you want to continue after {next_query} iterations.')
     print('_' * 25)
 
     for i, case in enumerate(cases_list):
