@@ -82,7 +82,7 @@ def feature_select(model_to_call, pars, X, y, dont_touch=[], scoring=roc_auc_sco
 
 # Grid feature selection
 def grid_feature_selection(model_to_call, params, X, y, possible_bad_cols, scoring,
-                           method='predict_proba', next_query=0.1, cv=5):
+                           method='predict_proba', next_query=0.1, cv=5, dont_ask=False, plotting=True):
     n_cols = len(possible_bad_cols)
     n_possibilities = 2 ** n_cols
     next_query = next_query if next_query > 1 else int(n_possibilities * next_query)
@@ -99,6 +99,8 @@ def grid_feature_selection(model_to_call, params, X, y, possible_bad_cols, scori
     print(f'There are {n_possibilities} possibilities to check.')
     if next_query >= n_possibilities:
         print('Procedure will be continuing till the end.')
+    elif dont_ask:
+        print(f'Procedure will be continuing till iteration {next_query}.')
     else:
         print(f'You will be asked if you want to continue after {next_query} iterations.')
     print('_' * 25)
@@ -139,6 +141,9 @@ def grid_feature_selection(model_to_call, params, X, y, possible_bad_cols, scori
         if i + 1 == next_query:
             print('_' * 25)
             print(f'\nModel has achived score of {best_score} until now.')
+            if dont_ask:
+                break
+
             print(f'It has been {iterations_since_last_high} iterations since the last high score.')
             print('Do you want to continue?')
             s = 'Enter 0 if you want to exit, or enter a number of iterations you want to add: '
@@ -162,7 +167,13 @@ def grid_feature_selection(model_to_call, params, X, y, possible_bad_cols, scori
                 break
 
     cases_df = pd.DataFrame(cases_dict).sort_values(by='Score', ascending=False).reset_index().drop('index', axis=1)
-    return best_case, best_score, cases_df, scores_dict
+    anti_best_case = [not i for i in binary(best_case, n_cols)]
+    best_case_dropped_cols = possible_bad_cols[anti_best_case]
+
+    if plotting:
+        plot_take_or_drop(scores_dict)
+
+    return best_case, best_score, best_case_dropped_cols, cases_df, scores_dict
 
 
 # Plotting the data returned from grid_feature_selection
@@ -190,6 +201,6 @@ def plot_take_or_drop(scores_dict):
     plt.plot(cols, diffs, marker='.', markersize=20)
     plt.axhline(y=0, linewidth=2, color='k')
     plt.xticks(rotation=90)
-    plt.title('Difference between average scores (Keeping - Dropping)')
+    plt.title('Difference between average scores (Keeping score avg - Dropping score avg)')
 
     plt.show()
