@@ -136,12 +136,12 @@ def grid_feature_selection(model_to_call, params, X, y, possible_bad_cols, scori
         else:
             iterations_since_last_high += 1
 
-        print(f'({i + 1:04}/{n_possibilities}) Case:{case:04} Time-Taken:{time_taken} Score:{score:.5f} {high_score}')
+        print(f'({i + 1:03}/{n_possibilities}) Case:{case:03} Time-Taken:{time_taken} Score:{score:.5f} {high_score}')
 
         if i + 1 == next_query:
             print('_' * 25)
             print(f'\nModel has achived score of {best_score} until now.')
-            if dont_ask:
+            if dont_ask or i + 1 == n_possibilities:
                 break
 
             print(f'It has been {iterations_since_last_high} iterations since the last high score.')
