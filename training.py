@@ -38,12 +38,12 @@ def try_models(models, X, y, plotting=True):
 
 # Geting cross validation score and predictions
 def cross_validation(model_to_call, pars, X, y, skf, scoring,
-                     verbose=0, submit_file=False, X_submit=None, sample_submission=None,
-                     target='target'):
+                     verbose=0, submit_pred=False, X_submit=None, method='predict_proba', submit_file=False,
+                     sample_submission=None, target='target'):
     models = []
     scores = []
     y_submit_list = []
-
+    submit_pred = True if submit_file else submit_pred
     for i, (train_ind, val_ind) in enumerate(skf.split(X, y)):
         X_train, X_val = X.loc[train_ind], X.loc[val_ind]
         y_train, y_val = y.loc[train_ind], y.loc[val_ind]
@@ -53,10 +53,14 @@ def cross_validation(model_to_call, pars, X, y, skf, scoring,
         if model.__class__.__name__ == 'CatBoostClassifier':
             model.fit(X_train.values, y_train, early_stopping_rounds=100,
                       eval_set=[(X_val.values, y_val)], verbose=0)
+
         else:
             model.fit(X_train, y_train)
 
-        y_pred = model.predict_proba(X_val)[:, 1]
+        if method == 'predict_proba':
+            y_pred = model.predict_proba(X_val)[:, 1]
+        else:
+            y_pred = model.decision_function(X_val)
         score = scoring(y_val, y_pred)
 
         if verbose > 1:
@@ -64,15 +68,22 @@ def cross_validation(model_to_call, pars, X, y, skf, scoring,
         scores.append(score)
         models.append(model)
 
-        if submit_file:
-            y_submit_list.append(model.predict_proba(X_submit)[:, 1])
+        if submit_pred:
+            if method == 'predict_proba':
+                y_submit_list.append(model.predict_proba(X_submit)[:, 1])
+            else:
+                y_submit_list.append(model.decision_function(X_submit))
 
     if verbose > 0:
         print('_' * 25, '\n', f'Mean: {np.mean(scores)}')
 
-    if submit_file:
+    if submit_pred:
         y_submit = np.stack(y_submit_list).mean(0)
+    else:
+        y_submit = None
+
+    if submit_file:
         sample_submission[target] = y_submit
         sample_submission.to_csv('submission.csv', index=False)
 
-    return models, scores
+    return models, scores, np.mean(scores), y_submit
