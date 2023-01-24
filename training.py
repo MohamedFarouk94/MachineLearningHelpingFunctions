@@ -50,12 +50,14 @@ def cross_validation(model_to_call, pars, X, y, skf, scoring,
 
         model = model_to_call(**pars)
 
+        before = time()
         if model.__class__.__name__ == 'CatBoostClassifier':
             model.fit(X_train.values, y_train, early_stopping_rounds=100,
                       eval_set=[(X_val.values, y_val)], verbose=0)
 
         else:
             model.fit(X_train, y_train)
+        time_taken = print_time(before, returning=True, printing=False)
 
         if method == 'predict_proba':
             y_pred = model.predict_proba(X_val)[:, 1]
@@ -64,7 +66,7 @@ def cross_validation(model_to_call, pars, X, y, skf, scoring,
         score = scoring(y_val, y_pred)
 
         if verbose > 1:
-            print(f'Fold {i + 1:02}: Score={score}')
+            print(f'Fold {i + 1:02}: Time Taken:{time_taken} Score={score:.5f}')
         scores.append(score)
         models.append(model)
 
