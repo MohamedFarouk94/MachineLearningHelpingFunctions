@@ -60,3 +60,22 @@ def num_plots(df, cols, target, n_rows=1, n_cols=1, rolling_length=1000):
         plt.scatter(df_temp_sorted.index, df_temp_sorted[target].rolling(rolling_length).mean())
         plt.title(col)
     plt.show()
+
+
+# Showing correlations heatmap
+def show_corr(df, cols, cmap='YlGnBu', fmt='.2f'):
+    plt.rcParams['figure.figsize'] = (20, 20)
+    sns.heatmap(df[cols].corr(), cmap=cmap, annot=True, fmt=fmt)
+    plt.show()
+
+
+# Showing correlations in bars
+def show_target_corr(df, cols, target):
+    plt.rcParams['figure.figsize'] = (20, 7)
+    corrs = df[cols + [target]].corr()[target]
+    plt.bar(cols, corrs[:-1])
+    plt.xticks(rotation=90)
+    plt.xlabel('columns')
+    plt.ylabel('Correlation with target column')
+    plt.axhline(y=0, c='k')
+    plt.show()
