@@ -2,8 +2,18 @@ from time import time
 from print_time import print_time
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
+
+
+# A simple function to determine if an object is a subscriptable or not
+def subscriptable(x):
+    try:
+        _ = x[0]
+        return True
+    except TypeError:
+        return False
 
 
 # Quick tryouts for several models
@@ -89,3 +99,13 @@ def cross_validation(model_to_call, pars, X, y, skf, scoring,
         sample_submission.to_csv('submission.csv', index=False)
 
     return models, scores, np.mean(scores), y_submit
+
+
+# Plotting feature importances
+def plot_feature_importances(models, columns):
+    models = [models] if not subscriptable(models) else models
+    feature_importances = [model.feature_importances_ for model in models]
+    feature_importances = np.stack(feature_importances).mean(0)
+    len(feature_importances)
+    plt.barh(columns, feature_importances)
+    plt.show()
