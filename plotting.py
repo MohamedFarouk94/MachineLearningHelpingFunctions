@@ -40,7 +40,11 @@ def cat_plots(df, cols, n_rows=1, n_cols=1, target=None):
                 width = spot[0].get_x()
                 catp.text(width, height + 3, f'{ratio:.2f}')
         else:
-            sns.countplot(data=df, x=col)
+            ax = sns.countplot(data=df, x=col)
+            for patch in ax.patches:
+                height = patch.get_height()
+                ratio = height / df.shape[0] * 100
+                ax.text(patch.get_x() + 0.01, height * 1.01, f'{ratio:.2f}%')
         plt.xticks(rotation=90)
     plt.show()
 
