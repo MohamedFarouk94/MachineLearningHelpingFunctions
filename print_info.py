@@ -1,4 +1,5 @@
 import pandas as pd
+from IPython.display import display
 
 
 # Information printing function
@@ -20,10 +21,10 @@ def print_info(df, unique_threshold=20):
         values = 'too many' if n_unique > unique_threshold else list(df[col].unique())
         info_dict['values'].append(values)
 
-        min_value = df[col].min() if col_type not in [str, object] else 'N/A'
-        max_value = df[col].max() if col_type not in [str, object] else 'N/A'
-        mean_value = df[col].mean() if col_type not in [str, object] else 'N/A'
-        std_value = df[col].std() if col_type not in [str, object] else 'N/A'
+        min_value = df[col].min() if pd.api.types.is_numeric_dtype(df[col]) else 'N/A'
+        max_value = df[col].max() if pd.api.types.is_numeric_dtype(df[col]) else 'N/A'
+        mean_value = df[col].mean() if pd.api.types.is_numeric_dtype(df[col]) else 'N/A'
+        std_value = df[col].std() if pd.api.types.is_numeric_dtype(df[col]) else 'N/A'
 
         info_dict['Min'].append(min_value)
         info_dict['Max'].append(max_value)
@@ -31,4 +32,4 @@ def print_info(df, unique_threshold=20):
         info_dict['STD'].append(std_value)
 
     info_dict['Total'] = [df.shape[0]] * df.shape[1]
-    return pd.DataFrame(info_dict)
+    display(pd.DataFrame(info_dict))
