@@ -49,7 +49,7 @@ def try_models(models, X, y, plotting=True):
 # Geting cross validation score and predictions
 def cross_validation(model_to_call, pars, X, y, skf, scoring,
                      verbose=0, submit_pred=False, X_submit=None, method='predict_proba', submit_file=False,
-                     sample_submission=None, target='target'):
+                     sample_submission=None, target='target', file_name='submission.csv'):
     models = []
     scores = []
     y_submit_list = []
@@ -96,7 +96,7 @@ def cross_validation(model_to_call, pars, X, y, skf, scoring,
 
     if submit_file:
         sample_submission[target] = y_submit
-        sample_submission.to_csv('submission.csv', index=False)
+        sample_submission.to_csv(file_name, index=False)
 
     return models, scores, np.mean(scores), y_submit
 
